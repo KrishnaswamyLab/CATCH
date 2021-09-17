@@ -23,7 +23,7 @@ version = open(version_py).read().strip().split("=")[-1].replace('"', "").strip(
 readme = open("README.md").read()
 
 setup(
-    name="CATCH",
+    name="catch-test",
     version=version,
     description="Implementation of the CATCH diffusion condensation algorithm",
     author="Manik Kuchroo & Scott Gigante, Yale University",
