@@ -5,8 +5,9 @@ import collections
 from collections import defaultdict
 from scipy.spatial.distance import pdist, cdist, squareform
 import sklearn
-import vne
 import warnings
+
+from . import vne
 
 
 
