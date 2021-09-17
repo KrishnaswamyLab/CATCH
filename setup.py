@@ -17,7 +17,7 @@ install_requires = [
 if sys.version_info[:2] < (3, 6):
     raise RuntimeError("Python version >=3.6 required.")
 
-version_py = os.path.join(os.path.dirname(__file__), "catch", "version.py")
+version_py = os.path.join(os.path.dirname(__file__), "CATCH", "version.py")
 version = open(version_py).read().strip().split("=")[-1].replace('"', "").strip()
 
 readme = open("README.md").read()
@@ -25,7 +25,7 @@ readme = open("README.md").read()
 setup(
     name="CATCH",
     version=version,
-    description="multiscale_phate",
+    description="Implementation of the CATCH diffusion condensation algorithm",
     author="Manik Kuchroo & Scott Gigante, Yale University",
     author_email="manik.kuchroo@yale.edu",
     packages=find_packages(),
