@@ -12,18 +12,18 @@ install_requires = [
     "joblib",
 ]
 
-#test_requires = ["nose2", "numpy", "coverage", "coveralls", "parameterized", "black"]
+test_requires = ["nose2", "numpy", "coverage", "coveralls", "parameterized", "black"]
 
 if sys.version_info[:2] < (3, 6):
     raise RuntimeError("Python version >=3.6 required.")
 
-version_py = os.path.join(os.path.dirname(__file__), "catch-test", "version.py")
+version_py = os.path.join(os.path.dirname(__file__), "CATCH", "version.py")
 version = open(version_py).read().strip().split("=")[-1].replace('"', "").strip()
 
 readme = open("README.md").read()
 
 setup(
-    name="catch-test",
+    name="CATCH",
     version=version,
     description="Implementation of the CATCH diffusion condensation algorithm",
     author="Manik Kuchroo & Scott Gigante, Yale University",
