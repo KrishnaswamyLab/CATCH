@@ -1,0 +1,7 @@
+numpy
+scipy
+graphtools
+tasklogger
+collections
+phate
+joblib
