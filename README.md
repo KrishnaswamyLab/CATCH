@@ -1,4 +1,4 @@
-# CATCH
+# CATCH: Cellular Analysis with Topology and Condensation Homology
 Learning cellular hierarchy from scRNAseq data
 
 To install use:
