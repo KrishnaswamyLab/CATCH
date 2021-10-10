@@ -6,4 +6,4 @@ To install use:
 `pip install git+https://github.com/KrishnaswamyLab/CATCH`
 
 
-Tutorial in the repo here: https://github.com/KrishnaswamyLab/CATCH/blob/main/tutorial/tutorial.ipynb
+Tutorial in the repo [here]( https://github.com/KrishnaswamyLab/CATCH/blob/main/tutorial/tutorial.ipynb).
