@@ -10,7 +10,6 @@ import warnings
 from . import vne
 
 
-
 class CATCH(object):
     def __init__(
         self,
@@ -46,6 +45,7 @@ class CATCH(object):
         self.levels = None
         self.ind_components = None
         self.gradient = None
+        self.gene_names = None
 
         super().__init__()
 
@@ -70,6 +70,7 @@ class CATCH(object):
             n_jobs=self.n_jobs,
             random_state=self.random_state,
         )
+        self.gene_names = data.columns
 
     def transform(self):
         with tasklogger.log_task("Topological Activity"):
@@ -91,7 +92,34 @@ class CATCH(object):
         self.fit(data)
         return self.transform()
     
+    def condensed_transport(self, cluster_1, cluster_2, level_1, level_2, levels=0):
+        condensed_transport = compute_condensed_transport(cluster_1, cluster_2, level_1,
+                                                          level_2, self.pca_op, self.Xs, self.NxTs, levels)
+        condensed_transport.index = self.gene_names
+        condensed_transport.columns = ['Signed Transport']
+        return condensed_transport
     
+    def build_tree(self):
+        
+        tree = pd.DataFrame(self.Xs[0][:,:2])
+        tree[2] = 0
+
+        for i in range(1,len(self.Xs)):
+            layer = pd.DataFrame(self.Xs[i][:,:2])
+            layer[2] = i
+            tree = np.vstack((tree,np.array(layer)))
+            
+        return tree[:-1]
+    
+    def map_clusters_to_tree(self, clusters):
+        clusters_tree = []
+
+        for l in range(len(self.NxTs)-1):
+            _, ind = np.unique(self.NxTs[l], return_index=True)
+            clusters_tree.extend(clusters[ind])
+
+        return clusters_tree
+
 # powered condensation
 def comp(node, neigh, visited):
     """Short summary.
@@ -438,3 +466,74 @@ def condense_fixed_weighted(X, weights, epsilon, t_max=10, n_jobs=1, random_stat
         # print("t: "+str(t))
         P_s = G_pl @ np.linalg.matrix_power(P_s, t) @ G_lp
         return P_s @ X, P_s, K
+    
+def find_root(label, resolution, NxT):
+    clusters, counts = np.unique(NxT[resolution], return_counts=True)
+    num = counts[clusters == label]
+    
+    for layer in range(-resolution, len(NxTs)):
+        clusters, counts = np.unique(NxT[-layer], return_counts=True)
+        if counts[clusters == label] != num:
+            return -layer +1
+    return 'not found'
+
+def find_root(label, resolution, NxT):
+    clusters, counts = np.unique(NxT[resolution], return_counts=True)
+    num = counts[clusters == label]
+    
+    for layer in range(-resolution, len(NxT)):
+        clusters, counts = np.unique(NxT[-layer], return_counts=True)
+        if counts[clusters == label] != num:
+            return -layer +1
+    return 'not found'
+
+def compute_condensed_transport(cluster_1, cluster_2, level_1, level_2, pca_op, Xs, NxTs, levels=0):
+    with tasklogger.log_task("Transporting Genes"):
+        res_1 = find_root(cluster_1, level_1, NxTs)
+        data_1 = pd.DataFrame(pca_op.inverse_transform(Xs[res_1]))
+        data_1.index = np.unique(NxTs[res_1])
+
+        res_2 = find_root(cluster_2, level_2, NxTs)
+        data_2 = pd.DataFrame(pca_op.inverse_transform(Xs[res_2]))
+        data_2.index = np.unique(NxTs[res_2])
+
+        result = np.array(data_1[data_1.index==cluster_1]) - np.array(data_2[data_2.index==cluster_2])
+        
+        
+        if levels > 0:
+            result = result + condensed_sub(data_1, NxTs, level_1, levels, pca_op, cluster_1, res_1, Xs) + condensed_sub(data_2, NxTs, level_2, levels, pca_op, cluster_2, res_2, Xs)
+        
+        result = pd.DataFrame(result).T
+
+    return result
+
+def condensed_sub(data, NxTs, layer, k, pca_op, cluster, res, Xs):
+    ratio = 1.0 / np.sum(NxTs[layer] == cluster)
+    sub_1 = np.zeros(data.shape[1]).astype(float)
+    for i in range(1, k):
+        sub_1_temp = pca_op.inverse_transform(
+            Xs[res - k][scale_down(NxTs[res - k])][NxTs[layer] == 0]
+        )
+        sub_1 = sub_1 + 1 / (2 ** i) * ratio * np.sum(
+            np.abs(np.array(data[data.index == 0]) - sub_1_temp), axis=0
+        )
+    return sub_1
+
+def scale_down(ideal):
+    ideal_list = ideal.copy()
+    list = np.unique(ideal)
+    list_match = range(0,len(list),1)
+    
+    for r in range(0,len(ideal_list)):
+        ideal_list[r] = list_match[np.where(ideal_list[r]==list)[0][0]]
+        
+    return np.array(ideal_list)
+
+def map_clusters_to_tree(clusters, NxTs):
+    clusters_tree = []
+
+    for l in range(len(NxTs)-1):
+        _, ind = np.unique(NxTs[l], return_index=True)
+        clusters_tree.extend(clusters[ind])
+
+    return clusters_tree
