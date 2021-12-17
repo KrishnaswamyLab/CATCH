@@ -6,7 +6,7 @@ from collections import defaultdict
 from scipy.spatial.distance import pdist, cdist, squareform
 import sklearn
 import warnings
-import pandas as pd
+import pandas
 
 from . import vne
 
@@ -102,11 +102,11 @@ class CATCH(object):
     
     def build_tree(self):
         
-        tree = pd.DataFrame(self.Xs[0][:,:2])
+        tree = pandas.DataFrame(self.Xs[0][:,:2])
         tree[2] = 0
 
         for i in range(1,len(self.Xs)):
-            layer = pd.DataFrame(self.Xs[i][:,:2])
+            layer = pandas.DataFrame(self.Xs[i][:,:2])
             layer[2] = i
             tree = np.vstack((tree,np.array(layer)))
             
@@ -491,11 +491,11 @@ def find_root(label, resolution, NxT):
 def compute_condensed_transport(cluster_1, cluster_2, level_1, level_2, pca_op, Xs, NxTs, levels=0):
     with tasklogger.log_task("Transporting Genes"):
         res_1 = find_root(cluster_1, level_1, NxTs)
-        data_1 = pd.DataFrame(pca_op.inverse_transform(Xs[res_1]))
+        data_1 = pandas.DataFrame(pca_op.inverse_transform(Xs[res_1]))
         data_1.index = np.unique(NxTs[res_1])
 
         res_2 = find_root(cluster_2, level_2, NxTs)
-        data_2 = pd.DataFrame(pca_op.inverse_transform(Xs[res_2]))
+        data_2 = pandas.DataFrame(pca_op.inverse_transform(Xs[res_2]))
         data_2.index = np.unique(NxTs[res_2])
 
         result = np.array(data_1[data_1.index==cluster_1]) - np.array(data_2[data_2.index==cluster_2])
@@ -504,7 +504,7 @@ def compute_condensed_transport(cluster_1, cluster_2, level_1, level_2, pca_op, 
         if levels > 0:
             result = result + condensed_sub(data_1, NxTs, level_1, levels, pca_op, cluster_1, res_1, Xs) + condensed_sub(data_2, NxTs, level_2, levels, pca_op, cluster_2, res_2, Xs)
         
-        result = pd.DataFrame(result).T
+        result = pandas.DataFrame(result).T
 
     return result
 
