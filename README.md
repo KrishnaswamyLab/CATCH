@@ -8,4 +8,4 @@ To install use:
 `pip install git+https://github.com/KrishnaswamyLab/CATCH`
 
 
-Tutorial in the repo [here](https://github.com/KrishnaswamyLab/CATCH/blob/main/tutorial.ipynb).
+Tutorial in the repo [here](https://github.com/KrishnaswamyLab/CATCH/blob/main/Tutorial/tutorial.ipynb).
