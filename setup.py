@@ -10,6 +10,7 @@ install_requires = [
     "scikit-learn",
     "tasklogger",
     "joblib",
+    "pandas",
 ]
 
 test_requires = ["nose2", "numpy", "coverage", "coveralls", "parameterized", "black"]
