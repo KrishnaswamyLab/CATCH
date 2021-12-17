@@ -6,6 +6,7 @@ from collections import defaultdict
 from scipy.spatial.distance import pdist, cdist, squareform
 import sklearn
 import warnings
+import pandas as pd
 
 from . import vne
 
